@@ -1,0 +1,106 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="jumbotron bg-light p-5 mb-4 rounded">
+    <h1 class="display-4">Студенческое голосование</h1>
+    <p class="lead">Платформа для проведения студенческих выборов и опросов</p>
+    
+    <div class="mt-4">
+      <% if (locals.user) { %>
+        <div class="alert alert-success d-inline-block">
+          <strong>Вы вошли как:</strong> <%= locals.user.name %> 
+          <% if (locals.user.role === 'admin') { %>
+            <span class="badge bg-danger ms-1">Администратор</span>
+          <% } %>
+        </div>
+        <div class="mt-3">
+          <a href="/elections" class="btn btn-primary btn-lg">Перейти к голосованиям</a>
+          <% if (locals.user.role === 'admin') { %>
+            <a href="/elections/create" class="btn btn-outline-primary btn-lg ms-2">Создать голосование</a>
+          <% } %>
+        </div>
+      <% } else { %>
+        <div class="alert alert-info">
+          <p>Для участия в голосованиях необходимо войти в систему или зарегистрироваться.</p>
+        </div>
+        <a href="/register" class="btn btn-primary btn-lg me-2">Регистрация</a>
+        <a href="/login" class="btn btn-outline-primary btn-lg">Вход</a>
+      <% } %>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 d-flex align-items-center justify-content-center mx-auto" style="width: 60px; height: 60px;">
+            <i class="bi bi-check2-square fs-4"></i>
+          </div>
+          <h5 class="card-title">Голосуй легко</h5>
+          <p class="card-text">Удобный интерфейс для голосований позволяет принять участие в несколько кликов с любого устройства.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 d-flex align-items-center justify-content-center mx-auto" style="width: 60px; height: 60px;">
+            <i class="bi bi-shield-check fs-4"></i>
+          </div>
+          <h5 class="card-title">Безопасно и надежно</h5>
+          <p class="card-text">Система защищена от накруток голосов и обеспечивает конфиденциальность голосования.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 d-flex align-items-center justify-content-center mx-auto" style="width: 60px; height: 60px;">
+            <i class="bi bi-graph-up fs-4"></i>
+          </div>
+          <h5 class="card-title">Прозрачные результаты</h5>
+          <p class="card-text">Наглядная визуализация результатов голосования с помощью графиков и диаграмм.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <% if (locals.user) { %>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="mb-0">Активные голосования</h5>
+        </div>
+        <div class="card-body">
+          <!-- Здесь можно динамически загружать список активных голосований -->
+          <div class="text-center">
+            <a href="/elections?status=active" class="btn btn-outline-primary">Перейти к активным голосованиям</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+  
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="mb-0">О системе</h5>
+        </div>
+        <div class="card-body">
+          <p>Система электронного голосования предназначена для проведения выборов в студенческое самоуправление и сбора мнений студентов по важным вопросам. Голосования могут быть открытыми для всех студентов или ограниченными определенными факультетами и группами.</p>
+          <p>Для участия в голосованиях необходимо зарегистрироваться или войти в систему, если у вас уже есть аккаунт.</p>
+          <div class="text-center mt-3">
+            <a href="/about" class="btn btn-outline-primary">Подробнее о системе</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

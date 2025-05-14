@@ -1,0 +1,23 @@
+<%- include('partials/header') %>
+
+<div class="container text-center py-5">
+  <div class="mb-4">
+    <h1 class="display-1 text-danger">500</h1>
+    <h2 class="mb-4">Ошибка сервера</h2>
+    <p class="lead">К сожалению, на сервере произошла ошибка. Попробуйте обновить страницу или вернуться позже.</p>
+    
+    <% if (process.env.NODE_ENV === 'development' && error) { %>
+      <div class="alert alert-danger mt-4 text-start">
+        <h4>Информация об ошибке (только для разработчиков):</h4>
+        <pre class="mb-0"><%= error.stack %></pre>
+      </div>
+    <% } %>
+  </div>
+  
+  <div>
+    <button onclick="window.location.reload()" class="btn btn-outline-primary me-2">Обновить страницу</button>
+    <a href="/" class="btn btn-primary">Вернуться на главную</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

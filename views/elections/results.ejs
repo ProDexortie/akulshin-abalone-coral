@@ -1,0 +1,151 @@
+<%- include('../partials/header') %>
+
+<div class="container">
+  <nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/elections">Голосования</a></li>
+      <li class="breadcrumb-item"><a href="/elections/<%= election._id %>"><%= election.title %></a></li>
+      <li class="breadcrumb-item active" aria-current="page">Результаты</li>
+    </ol>
+  </nav>
+
+  <div class="election-header">
+    <h1 class="h2 mb-3">Результаты голосования: <%= election.title %></h1>
+    
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+      <div>
+        <p class="lead mb-2"><%= election.description %></p>
+        <p class="text-muted mb-0">
+          <strong>Категория:</strong> <%= election.category %> | 
+          <strong>Создатель:</strong> <%= election.createdBy.name %>
+        </p>
+      </div>
+      <div>
+        <% if (election.status === 'upcoming') { %>
+          <span class="badge bg-secondary p-2 fs-6">Предстоящее</span>
+        <% } else if (election.status === 'active') { %>
+          <span class="badge bg-success p-2 fs-6">Активное</span>
+        <% } else if (election.status === 'completed') { %>
+          <span class="badge bg-dark p-2 fs-6">Завершено</span>
+        <% } %>
+      </div>
+    </div>
+    
+    <div class="alert alert-info">
+      <div class="row">
+        <div class="col-md-4">
+          <p class="mb-1"><strong>Начало:</strong> <%= formatDate(election.startDate, true) %></p>
+          <p class="mb-0"><strong>Окончание:</strong> <%= formatDate(election.endDate, true) %></p>
+        </div>
+        <div class="col-md-4">
+          <p class="mb-0"><strong>Всего проголосовало:</strong> <%= totalVotes %> человек</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <a href="/elections/<%= election._id %>" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Вернуться к голосованию
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Диаграмма результатов</h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="resultsChart" data-election-id="<%= election._id %>"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Круговая диаграмма</h5>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="resultsPieChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Результаты голосования</h5>
+        </div>
+        <div class="card-body">
+          <% if (results.length > 0) { %>
+            <div class="results-list">
+              <% results.forEach((result, index) => { %>
+                <div class="result-item <%= index === 0 ? 'first-place' : '' %> p-3 mb-3 border rounded">
+                  <div class="d-flex align-items-center mb-2">
+                    <% if (index === 0) { %>
+                      <div class="me-2 fs-4 text-warning">
+                        <i class="bi bi-trophy-fill"></i>
+                      </div>
+                    <% } %>
+                    <h5 class="mb-0 flex-grow-1"><%= result.text %></h5>
+                    <span class="badge bg-primary fs-6"><%= result.count %></span>
+                  </div>
+                  
+                  <div class="progress">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: <%= result.percentage %>%" 
+                         aria-valuenow="<%= result.percentage %>" aria-valuemin="0" aria-valuemax="100">
+                      <%= result.percentage %>%
+                    </div>
+                  </div>
+                  
+                  <% if (result.description) { %>
+                    <div class="mt-2 small text-muted">
+                      <%= result.description %>
+                    </div>
+                  <% } %>
+                </div>
+              <% }) %>
+            </div>
+            
+            <div class="text-center mt-3">
+              <p><strong>Всего голосов:</strong> <%= totalVotes %></p>
+            </div>
+          <% } else { %>
+            <div class="alert alert-info mb-0">
+              <p class="mb-0">Пока никто не проголосовал.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <% if (election.status === 'active' && locals.user && !locals.userVoted) { %>
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <p>Вы еще не проголосовали в этом голосовании.</p>
+            <a href="/elections/<%= election._id %>" class="btn btn-primary">
+              <i class="bi bi-check2-circle me-2"></i>Проголосовать
+            </a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .first-place {
+    background-color: rgba(26, 115, 232, 0.05);
+    border-color: var(--primary) !important;
+  }
+  
+  .chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 1rem;
+  }
+</style>
+
+<%- include('../partials/footer') %>
