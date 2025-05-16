@@ -65,15 +65,23 @@
               
               <div id="restrictionsContainer" class="ps-4 mb-3" style="display: none;">
                 <div class="mb-3">
-                  <label for="restrictedFaculties" class="form-label">Факультеты (через запятую)</label>
-                  <input type="text" class="form-control" id="restrictedFaculties" name="restrictedFaculties" placeholder="Например: Информационных технологий, Экономический">
-                  <div class="form-text">Оставьте пустым, если нет ограничений по факультетам</div>
+                  <label for="restrictedFaculties" class="form-label">Факультеты</label>
+                  <select class="form-select" id="restrictedFaculties" name="restrictedFaculties" multiple size="5">
+                    <% faculties.forEach(faculty => { %>
+                      <option value="<%= faculty %>"><%= faculty %></option>
+                    <% }) %>
+                  </select>
+                  <div class="form-text">Зажмите Ctrl для выбора нескольких факультетов</div>
                 </div>
                 
                 <div class="mb-3">
-                  <label for="restrictedGroups" class="form-label">Группы (через запятую)</label>
-                  <input type="text" class="form-control" id="restrictedGroups" name="restrictedGroups" placeholder="Например: ИС-31, ИС-32">
-                  <div class="form-text">Оставьте пустым, если нет ограничений по группам</div>
+                  <label for="restrictedGroups" class="form-label">Группы</label>
+                  <select class="form-select" id="restrictedGroups" name="restrictedGroups" multiple size="5">
+                    <% groups.forEach(group => { %>
+                      <option value="<%= group %>"><%= group %></option>
+                    <% }) %>
+                  </select>
+                  <div class="form-text">Зажмите Ctrl для выбора нескольких групп</div>
                 </div>
               </div>
               
@@ -149,19 +157,6 @@
     isPrivateCheckbox.addEventListener('change', function() {
       restrictionsContainer.style.display = this.checked ? 'block' : 'none';
     });
-    
-    // Установка минимальной даты для полей startDate и endDate
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    
-    const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-    
-    document.getElementById('startDate').setAttribute('min', minDateTime);
-    document.getElementById('endDate').setAttribute('min', minDateTime);
     
     // Обработка изменения даты начала
     document.getElementById('startDate').addEventListener('change', function() {

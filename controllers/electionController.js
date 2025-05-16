@@ -1,5 +1,6 @@
 const Election = require('../models/Election');
 const Vote = require('../models/Vote');
+const User = require('../models/User');
 const mongoose = require('mongoose');
 
 // Получение всех голосований
@@ -177,10 +178,25 @@ exports.getElection = async (req, res) => {
 };
 
 // Форма создания голосования
-exports.createElectionForm = (req, res) => {
-  res.render('elections/create', {
-    title: 'Создание голосования'
-  });
+exports.createElectionForm = async (req, res) => {
+  try {
+    // Получаем список всех факультетов и групп из пользователей
+    const users = await User.find();
+    
+    // Извлекаем уникальные факультеты и группы
+    const faculties = [...new Set(users.map(user => user.faculty))];
+    const groups = [...new Set(users.map(user => user.group))];
+    
+    res.render('elections/create', {
+      title: 'Создание голосования',
+      faculties,
+      groups
+    });
+  } catch (error) {
+    console.error('Ошибка при загрузке формы создания:', error);
+    req.flash('error', 'Ошибка при загрузке формы создания: ' + error.message);
+    res.redirect('/elections');
+  }
 };
 
 // Создание голосования
@@ -241,9 +257,29 @@ exports.createElection = async (req, res) => {
       return res.redirect('/elections/create');
     }
     
-    // Преобразование строк с запятыми в массивы для ограничений
-    const faculties = restrictedFaculties ? restrictedFaculties.split(',').map(f => f.trim()).filter(f => f) : [];
-    const groups = restrictedGroups ? restrictedGroups.split(',').map(g => g.trim()).filter(g => g) : [];
+    // Обработка ограничений для голосования
+    let faculties = [];
+    let groups = [];
+    
+    // Если ограничения переданы как массивы (из select multiple)
+    if (Array.isArray(restrictedFaculties)) {
+      faculties = restrictedFaculties.filter(f => f.trim() !== '');
+    } else if (restrictedFaculties) {
+      // Для обратной совместимости, если передано в виде строки
+      faculties = restrictedFaculties.split(',').map(f => f.trim()).filter(f => f);
+    }
+    
+    if (Array.isArray(restrictedGroups)) {
+      groups = restrictedGroups.filter(g => g.trim() !== '');
+    } else if (restrictedGroups) {
+      groups = restrictedGroups.split(',').map(g => g.trim()).filter(g => g);
+    }
+    
+    // Проверка, что дата окончания позже даты начала
+    if (parsedEndDate <= parsedStartDate) {
+      req.flash('error', 'Дата окончания должна быть позже даты начала');
+      return res.redirect('/elections/create');
+    }
     
     // Создание нового голосования
     const election = await Election.create({
@@ -310,6 +346,13 @@ exports.updateElectionForm = async (req, res) => {
       return res.redirect(`/elections/${election._id}`);
     }
     
+    // Получаем список всех факультетов и групп из пользователей
+    const users = await User.find();
+    
+    // Извлекаем уникальные факультеты и группы
+    const faculties = [...new Set(users.map(user => user.faculty))];
+    const groups = [...new Set(users.map(user => user.group))];
+    
     console.log('Отображение формы редактирования для:', election.title);
     // Отладка дат
     const startDate = new Date(election.startDate);
@@ -320,7 +363,9 @@ exports.updateElectionForm = async (req, res) => {
     
     res.render('elections/edit', {
       title: 'Редактирование голосования',
-      election
+      election,
+      faculties,
+      groups
     });
   } catch (error) {
     console.error('Ошибка при получении формы редактирования:', error);
@@ -383,13 +428,6 @@ exports.updateElection = async (req, res) => {
       return res.redirect(`/elections/edit/${req.params.id}`);
     }
     
-    // Если это предстоящее голосование, проверяем, что дата начала не в прошлом
-    if (parsedStartDate < now) {
-      console.log('Ошибка: дата начала не может быть в прошлом');
-      req.flash('error', 'Дата начала голосования не может быть раньше текущей даты');
-      return res.redirect(`/elections/edit/${req.params.id}`);
-    }
-    
     // Обработка опций (вариантов ответа)
     let options = [];
     
@@ -431,9 +469,23 @@ exports.updateElection = async (req, res) => {
       restrictedFaculties, restrictedGroups 
     } = req.body;
     
-    // Преобразование строк с запятыми в массивы для ограничений
-    const faculties = restrictedFaculties ? restrictedFaculties.split(',').map(f => f.trim()).filter(f => f) : [];
-    const groups = restrictedGroups ? restrictedGroups.split(',').map(g => g.trim()).filter(g => g) : [];
+    // Обработка ограничений для голосования
+    let faculties = [];
+    let groups = [];
+    
+    // Если ограничения переданы как массивы (из select multiple)
+    if (Array.isArray(restrictedFaculties)) {
+      faculties = restrictedFaculties.filter(f => f.trim() !== '');
+    } else if (restrictedFaculties) {
+      // Для обратной совместимости, если передано в виде строки
+      faculties = restrictedFaculties.split(',').map(f => f.trim()).filter(f => f);
+    }
+    
+    if (Array.isArray(restrictedGroups)) {
+      groups = restrictedGroups.filter(g => g.trim() !== '');
+    } else if (restrictedGroups) {
+      groups = restrictedGroups.split(',').map(g => g.trim()).filter(g => g);
+    }
     
     // Обновление голосования через прямое обновление полей
     // (обходим валидаторы модели)

@@ -31,7 +31,8 @@
       </div>
     </div>
     
-    <div class="alert alert-info">
+    <!-- Добавлен класс alert-persistent -->
+    <div class="alert alert-info alert-persistent">
       <div class="row">
         <div class="col-md-4">
           <p class="mb-1"><strong>Начало:</strong> <%= formatDate(election.startDate, true) %></p>
@@ -114,7 +115,8 @@
               <p><strong>Всего голосов:</strong> <%= totalVotes %></p>
             </div>
           <% } else { %>
-            <div class="alert alert-info mb-0">
+            <!-- Добавлен класс alert-persistent -->
+            <div class="alert alert-info alert-persistent mb-0">
               <p class="mb-0">Пока никто не проголосовал.</p>
             </div>
           <% } %>
