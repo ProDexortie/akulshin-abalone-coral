@@ -122,17 +122,11 @@ ElectionSchema.virtual('status').get(function() {
 // Валидатор на уровне схемы для проверки дат
 ElectionSchema.pre('validate', function(next) {
   // Получение текущей даты
-  const now = new Date();
-  const startDate = this.startDate;
   const endDate = this.endDate;
+  const startDate = this.startDate;
   
   // Проверка даты начала
   if (startDate && endDate) {
-    // При создании проверяем, что дата начала не меньше текущей
-    if (this.isNew && startDate < now) {
-      this.invalidate('startDate', 'Дата начала голосования не может быть раньше текущей даты');
-    }
-    
     // Проверка, что дата окончания позже даты начала
     if (endDate <= startDate) {
       this.invalidate('endDate', 'Дата окончания голосования должна быть позже даты начала');

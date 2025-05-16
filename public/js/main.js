@@ -34,12 +34,17 @@ document.addEventListener('DOMContentLoaded', function() {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
   
-  // Автоматическое закрытие алертов через 5 секунд
+  // Автоматическое закрытие ТОЛЬКО временных алертов через 5 секунд
+  // Изменено: добавлен селектор .alert-dismissible, чтобы закрывать только уведомления,
+  // которые должны быть временными
   setTimeout(function() {
-    var alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function(alert) {
-      var bsAlert = new bootstrap.Alert(alert);
-      bsAlert.close();
+    var tempAlerts = document.querySelectorAll('.alert.alert-dismissible, .alert-success, .alert-danger, .alert-warning:not(.alert-restriction)');
+    tempAlerts.forEach(function(alert) {
+      // Проверяем, не содержит ли алерт класс .alert-persistent
+      if (!alert.classList.contains('alert-persistent')) {
+        var bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      }
     });
   }, 5000);
   
